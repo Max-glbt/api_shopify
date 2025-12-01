@@ -11,6 +11,7 @@ const generateHmacSignature = (body) => {
     .digest('base64');
 };
 
+// Fonction pour envoyer un webhook de création de commande
 const sendWebhook = async (orderData, testName) => {
   try {
     const body = JSON.stringify(orderData);
@@ -35,6 +36,7 @@ const sendWebhook = async (orderData, testName) => {
   }
 };
 
+// Fonction pour vérifier le solde de points d'un client
 const getBalance = async (email) => {
   try {
     console.log(`\n[CHECK] Balance for ${email}`);
@@ -52,6 +54,7 @@ const getBalance = async (email) => {
   }
 };
 
+// Fonction pour lister tous les clients et leurs soldes de points
 const listAllCustomers = async () => {
   try {
     console.log(`\n[LIST] All customers:`);
@@ -68,8 +71,10 @@ const listAllCustomers = async () => {
   }
 };
 
+// Fonction de pause
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// Exécution de la suite de tests
 const runTests = async () => {
   console.log('\n========================================');
   console.log('  SHOPIFY LOYALTY API - TEST SUITE');
