@@ -1,0 +1,69 @@
+services:
+  # Service PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: shopify-loyalty-postgres
+    environment:
+      POSTGRES_DB: loyalty_db
+      POSTGRES_USER: loyalty_user
+      POSTGRES_PASSWORD: loyalty_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U loyalty_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shopify-loyalty
+
+  # Service Redis
+  redis:
+    image: redis:7-alpine
+    container_name: shopify-loyalty-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shopify-loyalty
+
+  # Service API Node.js
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shopify-loyalty-api
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SHOPIFY_CLIENT_SECRET: hush_hush_ceci_est_un_secret_test
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: loyalty_db
+      DB_USER: loyalty_user
+      DB_PASSWORD: loyalty_password
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - shopify-loyalty
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  shopify-loyalty:
+    driver: bridge
